@@ -132,9 +132,9 @@ def main():
                     if not os.path.exists(os.path.dirname(spfile)):
                         os.makedirs(os.path.dirname(spfile))
                     spfile_handle = open(spfile, 'w+')
-                    print('Extracted stay points:\nlaltitude\tlongitude\tarriving time\tleaving time', file=spfile_handle)
+                    print('Extracted stay points:\nlongitude\tlatitude\tarriving time\tleaving time', file=spfile_handle)
                     for sp in stayPointCenter:
-                        print(sp.latitude, sp.longitude, time.strftime(time_format, time.localtime(sp.arriveTime)), time.strftime(time_format, time.localtime(sp.leaveTime)), file=spfile_handle)
+                        print("%.8f" %sp.longitude, "%.8f" %sp.latitude, time.strftime(time_format, time.localtime(sp.arriveTime)), time.strftime(time_format, time.localtime(sp.leaveTime)), file=spfile_handle)
                     spfile_handle.close()
 
                     print("writen into:" ,  spfile) 
