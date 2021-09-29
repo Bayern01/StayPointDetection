@@ -15,7 +15,8 @@ from math import radians, cos, sin, asin, sqrt
 import folium
 import webbrowser
 
-time_format = '%Y-%m-%d,%H:%M:%S'
+#time_format = '%Y-%m-%d,%H:%M:%S'
+time_format = '%Y%m%d%H%M%S'
 
 # structure of point
 class Point:
@@ -58,7 +59,7 @@ def computMeanCoord(gpsPoints):
 #        distThres: distance threshold
 #        timeThres: time span threshold
 # default values of distThres and timeThres are 200 m and 30 min respectively, according to [1]
-def stayPointExtraction(points, distThres=200, timeThres=30 * 60):
+def stayPointExtraction(points, distThres=600, timeThres=15 * 60):
     stayPointList = []
     stayPointCenterList = []
     pointNum = len(points)
@@ -85,9 +86,10 @@ def parseGeoTxt(lines):
     points = []
     for line in lines:
         field_pointi = line.rstrip().split(',')
-        latitude = float(field_pointi[0])
-        longitude = float(field_pointi[1])
-        dateTime = field_pointi[-2] + ',' + field_pointi[-1]
+        latitude = float(field_pointi[1])
+        longitude = float(field_pointi[0])
+        #dateTime = field_pointi[-2] + ',' + field_pointi[-1]
+        dateTime = field_pointi[2][0:14]
         points.append(Point(latitude, longitude, dateTime, 0, 0))
     return points
 
@@ -102,20 +104,20 @@ def addPoints(mapDots, points, color):
             ))
 
 def main():
-    m = folium.Map(location=[40.007814,116.319764])
+    m = folium.Map(location=[30.597814,104.06764])
     tooltip = "hello"
     mapDots = folium.map.FeatureGroup()
 
-    for dirname, dirnames, filenames in os.walk(sys.path[0] + '/Data'):
+    for dirname, dirnames, filenames in os.walk('d:/input/ods'):
         filenum = len(filenames)
         print(filenum , "files found")
         count = 0
         for filename in filenames:
-            if  filename.endswith('plt'):
+            if  filename.endswith('txt'):
                 gpsfile = os.path.join(dirname, filename)
                 print("processing:" ,  gpsfile) 
                 log = open(gpsfile, 'r')
-                lines = log.readlines()[6:] # first 6 lines are useless
+                lines = log.readlines()[0:] # first 6 lines are useless
                 points = parseGeoTxt(lines)
                 stayPointCenter, stayPoint = stayPointExtraction(points)
                 addPoints(mapDots, points, 'yellow')
@@ -126,7 +128,7 @@ def main():
                     addPoints(mapDots, stayPointCenter, 'red')
 
                     # writen into file ./StayPoint/*.plt
-                    spfile = gpsfile.replace('Data', 'StayPoint').replace('.plt', '_basic.plt')
+                    spfile = gpsfile.replace('d:/input/ods', 'd:/input/odsStayPoint').replace('.txt', '_basic.txt')
                     if not os.path.exists(os.path.dirname(spfile)):
                         os.makedirs(os.path.dirname(spfile))
                     spfile_handle = open(spfile, 'w+')
