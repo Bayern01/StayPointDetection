@@ -104,7 +104,7 @@ def addPoints(mapDots, points, color):
     for p in points:
         mapDots.add_child(folium.CircleMarker(
             [p.latitude, p.longitude], 
-            radius=4,
+            radius=10,
             tooltip=p.dateTime,
             color=color
             ))

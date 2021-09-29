@@ -59,7 +59,7 @@ def computMeanCoord(gpsPoints):
 #        distThres: distance threshold
 #        timeThres: time span threshold
 # default values of distThres and timeThres are 200 m and 30 min respectively, according to [1]
-def stayPointExtraction(points, distThres=600, timeThres=15 * 60):
+def stayPointExtraction(points, distThres=800, timeThres=15 * 60):
     stayPointList = []
     stayPointCenterList = []
     pointNum = len(points)
@@ -67,9 +67,11 @@ def stayPointExtraction(points, distThres=600, timeThres=15 * 60):
     while i < pointNum:
         j = i + 1
         while j < pointNum:
-            if getDistanceOfPoints(points[i], points[j]) > distThres:
-                # points[j] has gone out of bound thus it should not be counted in the stay points.
-                if getTimeIntervalOfPoints(points[i], points[j-1]) > timeThres:
+            dis = getDistanceOfPoints(points[i], points[j])
+            if dis > distThres:
+                # points[j] has gone out of bound thus it should not be counted in the stay points.   
+                diff = getTimeIntervalOfPoints(points[i], points[j-1])    
+                if diff > timeThres:
                     latitude, longitude = computMeanCoord(points[i:j])
                     arriveTime = time.mktime(time.strptime(points[i].dateTime, time_format))
                     leaveTime = time.mktime(time.strptime(points[j-1].dateTime, time_format))
@@ -77,6 +79,17 @@ def stayPointExtraction(points, distThres=600, timeThres=15 * 60):
                     stayPointCenterList.append(Point(latitude, longitude, dateTime, arriveTime, leaveTime))
                     stayPointList.extend(points[i:j])
                 break
+            else :
+                if j == pointNum - 1:
+                    # deal the last points
+                    diff = getTimeIntervalOfPoints(points[i], points[j])
+                    if diff > timeThres:
+                        latitude, longitude = computMeanCoord(points[i:j])
+                        arriveTime = time.mktime(time.strptime(points[i].dateTime, time_format))
+                        leaveTime = time.mktime(time.strptime(points[j].dateTime, time_format))
+                        dateTime = time.strftime(time_format, time.localtime(arriveTime)), time.strftime(time_format, time.localtime(leaveTime))
+                        stayPointCenterList.append(Point(latitude, longitude, dateTime, arriveTime, leaveTime))
+                        stayPointList.extend(points[i:j])
             j += 1
         i = j
     return stayPointCenterList, stayPointList
@@ -98,7 +111,7 @@ def addPoints(mapDots, points, color):
     for p in points:
         mapDots.add_child(folium.CircleMarker(
             [p.latitude, p.longitude], 
-            radius=4,
+            radius=10,
             tooltip=p.dateTime,
             color=color,
             ))
@@ -120,7 +133,7 @@ def main():
                 lines = log.readlines()[0:] # first 6 lines are useless
                 points = parseGeoTxt(lines)
                 stayPointCenter, stayPoint = stayPointExtraction(points)
-                addPoints(mapDots, points, 'yellow')
+                addPoints(mapDots, points, 'black')
 
                 if len(stayPointCenter) > 0:
                     # add pionts to a group to be shown on map
