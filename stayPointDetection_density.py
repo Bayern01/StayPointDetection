@@ -137,7 +137,7 @@ def main():
                 lines = log.readlines()[0:] # first 6 lines are useless
                 points = parseGeoTxt(lines)
                 stayPointCenter, stayPoint = stayPointExtraction(points)
-                addPoints(mapDots, points, "yellow")
+                addPoints(mapDots, points, "black")
 
                 if len(stayPointCenter) > 0:
                     # add pionts to a group to be shown on map
