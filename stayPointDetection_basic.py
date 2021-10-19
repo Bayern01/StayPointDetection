@@ -67,10 +67,23 @@ def stayPointExtraction(points, distThres=800, timeThres=15 * 60):
     while i < pointNum:
         j = i + 1
         while j < pointNum:
+            # deal the last point
             dis = getDistanceOfPoints(points[i], points[j])
+            if dis < distThres and j == pointNum-1:
+                diff = getTimeIntervalOfPoints(points[i], points[j])
+                if diff > timeThres:
+                    latitude, longitude = computMeanCoord(points[i:j+1])
+                    arriveTime = time.mktime(time.strptime(points[i].dateTime, time_format))
+                    leaveTime = time.mktime(time.strptime(points[j].dateTime, time_format))
+                    dateTime = time.strftime(time_format, time.localtime(arriveTime)), time.strftime(time_format, time.localtime(leaveTime))
+                    stayPointCenterList.append(Point(latitude, longitude, dateTime, arriveTime, leaveTime))
+                    stayPointList.extend(points[i:j+1])
+                break
+
             if dis > distThres:
-                # points[j] has gone out of bound thus it should not be counted in the stay points.   
-                diff = getTimeIntervalOfPoints(points[i], points[j-1])    
+                # points[j] has gone out of bound thus it should not be counted in the stay points.
+                diff = getTimeIntervalOfPoints(points[i], points[j-1])
+
                 if diff > timeThres:
                     latitude, longitude = computMeanCoord(points[i:j])
                     arriveTime = time.mktime(time.strptime(points[i].dateTime, time_format))
@@ -79,19 +92,9 @@ def stayPointExtraction(points, distThres=800, timeThres=15 * 60):
                     stayPointCenterList.append(Point(latitude, longitude, dateTime, arriveTime, leaveTime))
                     stayPointList.extend(points[i:j])
                 break
-            else :
-                if j == pointNum - 1:
-                    # deal the last points
-                    diff = getTimeIntervalOfPoints(points[i], points[j])
-                    if diff > timeThres:
-                        latitude, longitude = computMeanCoord(points[i:j])
-                        arriveTime = time.mktime(time.strptime(points[i].dateTime, time_format))
-                        leaveTime = time.mktime(time.strptime(points[j].dateTime, time_format))
-                        dateTime = time.strftime(time_format, time.localtime(arriveTime)), time.strftime(time_format, time.localtime(leaveTime))
-                        stayPointCenterList.append(Point(latitude, longitude, dateTime, arriveTime, leaveTime))
-                        stayPointList.extend(points[i:j])
             j += 1
         i = j
+
     return stayPointCenterList, stayPointList
 
 # parse lines into points
@@ -103,6 +106,10 @@ def parseGeoTxt(lines):
         longitude = float(field_pointi[0])
         #dateTime = field_pointi[-2] + ',' + field_pointi[-1]
         dateTime = field_pointi[2][0:14]
+        if field_pointi[3] == "outdoor":
+            radius = 800
+        else:
+            radius = 100
         points.append(Point(latitude, longitude, dateTime, 0, 0))
     return points
 
@@ -121,7 +128,7 @@ def main():
     tooltip = "hello"
     mapDots = folium.map.FeatureGroup()
 
-    for dirname, dirnames, filenames in os.walk('d:/input/ods'):
+    for dirname, dirnames, filenames in os.walk('d:/input/single'):
         filenum = len(filenames)
         print(filenum , "files found")
         count = 0
@@ -141,7 +148,7 @@ def main():
                     addPoints(mapDots, stayPointCenter, 'red')
 
                     # writen into file ./StayPoint/*.plt
-                    spfile = gpsfile.replace('d:/input/ods', 'd:/input/odsStayPoint').replace('.txt', '_basic.txt')
+                    spfile = gpsfile.replace('d:/input/single', 'd:/input/output').replace('.txt', '_basic.txt')
                     if not os.path.exists(os.path.dirname(spfile)):
                         os.makedirs(os.path.dirname(spfile))
                     spfile_handle = open(spfile, 'w+')
