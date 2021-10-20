@@ -78,6 +78,7 @@ def stayPointExtraction(points, distThres=800, timeThres=15 * 60):
                     dateTime = time.strftime(time_format, time.localtime(arriveTime)), time.strftime(time_format, time.localtime(leaveTime))
                     stayPointCenterList.append(Point(latitude, longitude, dateTime, arriveTime, leaveTime))
                     stayPointList.extend(points[i:j+1])
+                    i = j
                 break
 
             if dis > distThres:
@@ -91,9 +92,10 @@ def stayPointExtraction(points, distThres=800, timeThres=15 * 60):
                     dateTime = time.strftime(time_format, time.localtime(arriveTime)), time.strftime(time_format, time.localtime(leaveTime))
                     stayPointCenterList.append(Point(latitude, longitude, dateTime, arriveTime, leaveTime))
                     stayPointList.extend(points[i:j])
+                    i = j
                 break
             j += 1
-        i = j
+        i += 1
 
     return stayPointCenterList, stayPointList
 
