@@ -69,9 +69,9 @@ def stayPointExtraction(points, distThres=800, timeThres=15 * 60):
         while j < pointNum:
             # deal the last point
             dis = getDistanceOfPoints(points[i], points[j])
-            if dis < distThres and j == pointNum-1:
+            if dis <= distThres and j == pointNum-1:
                 diff = getTimeIntervalOfPoints(points[i], points[j])
-                if diff > timeThres:
+                if diff >= timeThres:
                     latitude, longitude = computMeanCoord(points[i:j+1])
                     arriveTime = time.mktime(time.strptime(points[i].dateTime, time_format))
                     leaveTime = time.mktime(time.strptime(points[j].dateTime, time_format))
@@ -84,7 +84,7 @@ def stayPointExtraction(points, distThres=800, timeThres=15 * 60):
                 # points[j] has gone out of bound thus it should not be counted in the stay points.
                 diff = getTimeIntervalOfPoints(points[i], points[j-1])
 
-                if diff > timeThres:
+                if diff >= timeThres:
                     latitude, longitude = computMeanCoord(points[i:j])
                     arriveTime = time.mktime(time.strptime(points[i].dateTime, time_format))
                     leaveTime = time.mktime(time.strptime(points[j-1].dateTime, time_format))
