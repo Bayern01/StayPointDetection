@@ -126,7 +126,7 @@ def main():
     mapDots = folium.map.FeatureGroup()
 
     count = 0
-    for dirname, dirnames, filenames in os.walk('d:/input/ods'):
+    for dirname, dirnames, filenames in os.walk('d:/input/single'):
         filenum = len(filenames)
         print(filenum , "files found")
         for filename in filenames:
@@ -145,7 +145,7 @@ def main():
                     addPoints(mapDots, stayPointCenter, "red")
 
                     # writen into file ./StayPoint/*.plt
-                    spfile = gpsfile.replace('d:/input/ods', 'd:/input/odsStayPoint').replace('.txt', '_density.txt')
+                    spfile = gpsfile.replace('d:/input/single', 'd:/input/output').replace('.txt', '_density.txt')
                     if not os.path.exists(os.path.dirname(spfile)):
                         os.makedirs(os.path.dirname(spfile))
                     spfile_handle = open(spfile, 'w+')

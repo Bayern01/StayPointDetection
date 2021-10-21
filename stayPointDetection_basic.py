@@ -69,7 +69,7 @@ def stayPointExtraction(points, distThres=800, timeThres=15 * 60):
         while j < pointNum:
             # deal the last point
             dis = getDistanceOfPoints(points[i], points[j])
-            if dis <= distThres and j == pointNum-1:
+            if j == pointNum-1 and dis <= distThres :
                 diff = getTimeIntervalOfPoints(points[i], points[j])
                 if diff >= timeThres:
                     latitude, longitude = computMeanCoord(points[i:j+1])
@@ -78,7 +78,7 @@ def stayPointExtraction(points, distThres=800, timeThres=15 * 60):
                     dateTime = time.strftime(time_format, time.localtime(arriveTime)), time.strftime(time_format, time.localtime(leaveTime))
                     stayPointCenterList.append(Point(latitude, longitude, dateTime, arriveTime, leaveTime))
                     stayPointList.extend(points[i:j+1])
-                    i = j
+                i = j    
                 break
 
             if dis > distThres:
@@ -92,7 +92,7 @@ def stayPointExtraction(points, distThres=800, timeThres=15 * 60):
                     dateTime = time.strftime(time_format, time.localtime(arriveTime)), time.strftime(time_format, time.localtime(leaveTime))
                     stayPointCenterList.append(Point(latitude, longitude, dateTime, arriveTime, leaveTime))
                     stayPointList.extend(points[i:j])
-                    i = j
+                    i = j - 1
                 break
             j += 1
         i += 1
@@ -164,6 +164,7 @@ def main():
                 else:
                     print(gpsfile , "has no stay point")
         print(count, "out of" , filenum , "files contain stay points")
+        
 
     # show stay points on map
     m.add_child(mapDots)
